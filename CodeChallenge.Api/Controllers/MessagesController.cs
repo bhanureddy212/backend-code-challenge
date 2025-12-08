@@ -123,11 +123,5 @@ namespace CodeChallenge.Api.Controllers
                 return StatusCode(500, new ProblemDetails { Title = "Failed to delete message", Status = 500, Detail = ex.Message });
             }
         }
-
-        // Helper to convert validation dictionary to ModelStateDictionary-compatible structure
-        private static IDictionary<string, string[]> ToModelState(Dictionary<string, string[]> errors)
-        {
-            return errors ?? new Dictionary<string, string[]>();
-        }
     }
 }
