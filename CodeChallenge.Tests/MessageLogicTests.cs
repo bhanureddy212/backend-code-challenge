@@ -195,5 +195,31 @@ namespace CodeChallenge.Tests
             _repoMock.Verify(r => r.GetByIdAsync(_orgId, msgId), Times.Once);
             _repoMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
         }
+
+        [Fact]
+        public async Task DeleteMessage_Inactive_ReturnsValidationError()
+        {
+            var msgId = Guid.NewGuid();
+
+            var existing = new Message
+            {
+                Id = msgId,
+                OrganizationId = _orgId,
+                Title = "Inactive Msg",
+                Content = new string('x', 20),
+                IsActive = false
+            };
+
+            _repoMock.Setup(r => r.GetByIdAsync(_orgId, msgId))
+                     .ReturnsAsync(existing);
+
+            var result = await _logic.DeleteMessageAsync(_orgId, msgId);
+
+            result.Should().BeOfType<ValidationError>();
+            var ve = result as ValidationError;
+            ve!.Errors.Should().ContainKey("IsActive");
+
+            _repoMock.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+        }
     }
 }

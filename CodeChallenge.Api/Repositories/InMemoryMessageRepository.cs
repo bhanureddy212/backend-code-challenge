@@ -114,7 +114,6 @@ public class InMemoryMessageRepository : IMessageRepository
         {
             if (_messages.ContainsKey(message.Id))
             {
-                message.UpdatedAt = DateTime.UtcNow;
                 _messages[message.Id] = message;
                 return Task.FromResult<Message?>(message);
             }

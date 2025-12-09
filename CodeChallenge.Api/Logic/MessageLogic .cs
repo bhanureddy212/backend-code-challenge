@@ -26,7 +26,8 @@ namespace CodeChallenge.Api.Logic
 
             var exists = await _repository.GetByTitleAsync(organizationId, request.Title!.Trim());
             if (exists != null)
-                return new Conflict("A message with the same title already exists for this organization.");
+                return new ValidationError(new Dictionary<string, string[]>
+                { { "Title", new [] { "A message with this title already exists." } } });
 
             var message = new Message
             {
@@ -51,19 +52,22 @@ namespace CodeChallenge.Api.Logic
                 return new NotFound("Message not found.");
 
             if (!existing.IsActive)
-                return new Conflict("Only active messages can be updated.");
+                return new ValidationError(new Dictionary<string, string[]>
+                { { "IsActive", new [] { "Inactive messages cannot be updated." } } });
 
             var trimmedTitle = (request.Title ?? string.Empty).Trim();
             if (!string.Equals(existing.Title?.Trim(), trimmedTitle, StringComparison.OrdinalIgnoreCase))
             {
                 var other = await _repository.GetByTitleAsync(organizationId, trimmedTitle);
                 if (other != null && other.Id != id)
-                    return new Conflict("Another message with the same title already exists for this organization.");
+                    return new ValidationError(new Dictionary<string, string[]>
+                    { { "Title", new [] { "Another active message already uses this title." } } });
             }
 
             existing.Title = trimmedTitle;
             existing.Content = request.Content ?? string.Empty;
             existing.IsActive = request.IsActive;
+            existing.UpdatedAt = DateTime.UtcNow;
 
             var updated = await _repository.UpdateAsync(existing);
             if (updated == null)
@@ -79,7 +83,8 @@ namespace CodeChallenge.Api.Logic
                 return new NotFound("Message not found.");
 
             if (!existing.IsActive)
-                return new Conflict("Only active messages can be deleted.");
+                return new ValidationError(new Dictionary<string, string[]>
+                { { "IsActive", new [] { "Inactive messages cannot be deleted." } } });
 
             var deleted = await _repository.DeleteAsync(organizationId, id);
             if (!deleted)
