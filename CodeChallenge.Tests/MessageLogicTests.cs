@@ -52,7 +52,7 @@ namespace CodeChallenge.Tests
         }
 
         [Fact]
-        public async Task CreateMessage_DuplicateTitle_ReturnsConflict()
+        public async Task CreateMessage_DuplicateTitle_ReturnsValidationError()
         {
             // Arrange
             var createReq = new CreateMessageRequest
@@ -78,13 +78,15 @@ namespace CodeChallenge.Tests
             var result = await _logic.CreateMessageAsync(_orgId, createReq);
 
             // Assert
-            result.Should().BeOfType<Conflict>();
-            var conflict = result as Conflict;
-            conflict!.Message.Should().Contain("same title");
+            result.Should().BeOfType<ValidationError>();
+            var ve = result as ValidationError;
+            ve!.Errors.Should().ContainKey("Title");
+            ve.Errors["Title"].Should().Contain(e => e.Contains("title", StringComparison.OrdinalIgnoreCase));
 
             _repoMock.Verify(r => r.GetByTitleAsync(_orgId, It.IsAny<string>()), Times.Once);
             _repoMock.Verify(r => r.CreateAsync(It.IsAny<Message>()), Times.Never);
         }
+
 
         [Fact]
         public async Task CreateMessage_ContentTooShort_ReturnsValidationError()
@@ -138,7 +140,7 @@ namespace CodeChallenge.Tests
         }
 
         [Fact]
-        public async Task UpdateMessage_InactiveMessage_ReturnsConflict()
+        public async Task UpdateMessage_InactiveMessage_ReturnsValidationError()
         {
             // Arrange
             var updateReq = new UpdateMessageRequest
@@ -167,9 +169,11 @@ namespace CodeChallenge.Tests
             var result = await _logic.UpdateMessageAsync(_orgId, msgId, updateReq);
 
             // Assert
-            result.Should().BeOfType<Conflict>();
-            var cf = result as Conflict;
-            cf!.Message.Should().Contain("active");
+            result.Should().BeOfType<ValidationError>();
+            var ve = result as ValidationError;
+            ve!.Errors.Should().ContainKey("IsActive");
+            ve.Errors["IsActive"].Should().Contain(e => e.Contains("Inactive", StringComparison.OrdinalIgnoreCase)
+                                                     || e.Contains("active", StringComparison.OrdinalIgnoreCase));
 
             _repoMock.Verify(r => r.GetByIdAsync(_orgId, msgId), Times.Once);
             _repoMock.Verify(r => r.UpdateAsync(It.IsAny<Message>()), Times.Never);
