@@ -5,7 +5,7 @@ All business rules were implemented in MessageLogic, keeping controllers thin an
 
 Question2 : What would you improve or change if you had more time?
 
-Answer : I’d add proper validation libraries, better error handling, and replace the in-memory repo with a real database and also include pagination , mapping layers
+Answer : I would add proper validation libraries, better error handling, and replace the in-memory repo with a real database and also include pagination , mapping layers
 
 Question3 : How did you approach the validation requirements and why?
 
@@ -23,5 +23,5 @@ xUnit, Moq, and FluentAssertions made the tests simple.
 
 Question6 : What other scenarios would you test in a real-world application?
 
-Answer : I’d test performance, security, and full integration of API + DB.
+Answer : I would test performance, security, and full integration of API + DB.
 Also edge cases like large payloads, invalid JSON, and authorization failures.
