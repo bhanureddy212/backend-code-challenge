@@ -61,7 +61,6 @@ namespace CodeChallenge.Api.Controllers
                 {
                     Created<Message> c => CreatedAtAction(nameof(GetById), new { organizationId = organizationId, id = c.Value.Id }, c.Value),
                     ValidationError ve => ValidationProblem(new ValidationProblemDetails(ve.Errors)),
-                    Conflict cf => Conflict(new ProblemDetails { Title = "Conflict", Status = 409, Detail = cf.Message }),
                     _ => StatusCode(500, new ProblemDetails { Title = "Unexpected result", Status = 500 })
                 };
             }
@@ -89,7 +88,6 @@ namespace CodeChallenge.Api.Controllers
                     Updated => NoContent(),
                     ValidationError ve => ValidationProblem(new ValidationProblemDetails(ve.Errors)),
                     NotFound nf => NotFound(new ProblemDetails { Title = "Not found", Status = 404, Detail = nf.Message }),
-                    Conflict cf => Conflict(new ProblemDetails { Title = "Conflict", Status = 409, Detail = cf.Message }),
                     _ => StatusCode(500, new ProblemDetails { Title = "Unexpected result", Status = 500 })
                 };
             }
@@ -113,7 +111,7 @@ namespace CodeChallenge.Api.Controllers
                 {
                     Deleted => NoContent(),
                     NotFound nf => NotFound(new ProblemDetails { Title = "Not found", Status = 404, Detail = nf.Message }),
-                    Conflict cf => Conflict(new ProblemDetails { Title = "Conflict", Status = 409, Detail = cf.Message }),
+                    ValidationError ve => ValidationProblem(new ValidationProblemDetails(ve.Errors)),
                     _ => StatusCode(500, new ProblemDetails { Title = "Unexpected result", Status = 500 })
                 };
             }
